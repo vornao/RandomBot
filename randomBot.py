@@ -1,6 +1,4 @@
-#a simple python bot that will send random contents
 
-#ver 0.1.3
 from telegram.inline.inputtextmessagecontent import InputTextMessageContent
 from telegram.parsemode import ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackContext, InlineQueryHandler
