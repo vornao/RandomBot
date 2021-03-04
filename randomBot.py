@@ -1,5 +1,4 @@
 #a simple python bot that will send random contents
-#to its users
 
 #ver 0.1.3
 from telegram.inline.inputtextmessagecontent import InputTextMessageContent
