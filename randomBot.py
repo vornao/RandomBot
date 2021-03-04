@@ -21,51 +21,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s', 
     level = logging.INFO)
 
-#main method, load files specified in utils.py and starts bot.
-def main():
-    try: 
-        word_file = open(WORDS_PATH, "r")
-        temp_list = word_file.read().splitlines()
-        for x in temp_list:
-            p_list.append(x)
-    except:
-        logging.error("error opeining words.txt")
-    finally:
-        word_file.close()
-
-    logging.info("Words File loaded!")
-    
-    updater = Updater(TOKEN, use_context = True)
-    dispatcher = updater.dispatcher
-
-    #add words handler function
-    add_word_handler = ConversationHandler(
-        entry_points=[
-            CommandHandler("addword", add_p_word)],
-        states={
-            STATE_ONE: [
-                MessageHandler(Filters.text, store_p_word)
-                ]
-            },
-        fallbacks=[]
-    )
-
-    dispatcher.add_handler(add_word_handler)
-    #welcome message handler
-    dispatcher.add_handler(CommandHandler("start", start_handler))
-
-    #will answer with random words at every message
-    dispatcher.add_handler(MessageHandler(Filters.text, send_message))
-
-    #inline query handler from telegram
-    dispatcher.add_handler(InlineQueryHandler(inlinequery))
-
-    #will send random word without receiving message
-    dispatcher.add_handler(CommandHandler("sendmessage", send_message))
-    updater.start_polling()
-    updater.idle()
-    logging.info("Telegram bot started")
-    print("Telegram bot started")
 
 def start_handler(update, context, p_list: list) -> None: 
     update.message.reply_text("Hello!")
@@ -114,6 +69,57 @@ def inlinequery(update, context):
             input_message_content = InputTextMessageContent(ans, parse_mode=ParseMode.MARKDOWN)
             )
         ])
+
+
+#main method, initialize context and starts bot.
+def main():
+    try: 
+        word_file = open(WORDS_PATH, "r")
+        temp_list = word_file.read().splitlines()
+        for x in temp_list:
+            p_list.append(x)
+    except:
+        logging.error("error opeining words.txt")
+    finally:
+        word_file.close()
+
+    logging.info("Words File loaded!")
+    
+    updater = Updater(TOKEN, use_context = True)
+    dispatcher = updater.dispatcher
+
+    #add words handler function
+    add_word_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler("addword", add_p_word)],
+        states={
+            STATE_ONE: [
+                MessageHandler(Filters.text, store_p_word)
+                ]
+            },
+        fallbacks=[]
+    )
+
+    dispatcher.add_handler(add_word_handler)
+    #welcome message handler
+    dispatcher.add_handler(CommandHandler("start", start_handler))
+
+    #will answer with random words at every message
+    dispatcher.add_handler(MessageHandler(Filters.text, send_message))
+
+    #inline query handler from telegram
+    dispatcher.add_handler(InlineQueryHandler(inlinequery))
+
+    #will send random word without receiving message
+    dispatcher.add_handler(CommandHandler("sendmessage", send_message))
+
+    logging.info("Telegram bot started")
+    print("Telegram bot started")
+    updater.start_polling()
+
+    #for graceful termination send CTRL+C or SIGINT to process
+    updater.idle()
+    
 
 if __name__=='__main__':
     main()

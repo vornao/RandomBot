@@ -7,7 +7,7 @@ Requirements:
 
 Installation instructions:
 - Clone repository or download source files.
-- Create a bot with bot father on telegram, then put your new token in const.py file. Keep it secret.
+- Create a bot with @botfather on telegram, then put your new token in const.py file. Keep it secret.
 - From a terminal window launch: python3 randomBot.py (to leave it in background you can put & at the end of the command.)
 - If everything gone well, you can now start your bot from telegram!
 
@@ -17,4 +17,5 @@ After the bot has started, it will reply to your messages with some random stuff
 - /sendmessage will make the bot send you a message 
 - /addword will let you add words to words.txt file without editing the file from a shell
 - This bot supports inline commands: type @your_bot_username in any chat to let him prompt you random stuff!
+  (you have to enable inline mode from BotFather)
 
