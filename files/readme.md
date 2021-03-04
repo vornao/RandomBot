@@ -1,0 +1,3 @@
+- You should put your bot's words in words.txt file
+- Every line has to end with \n.
+- You also can run the bot and add the words directly from the bot chat.
