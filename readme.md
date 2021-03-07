@@ -2,6 +2,7 @@
 This is a very simple (experimental) bot that will reply to you with random quotes chosen from a text file.
 Bot will answer messages in private chat as well as group chat replies.
 This code has been written using python-telegram-bot library.
+
 ### Requirements:
 - Python 3.x
 - pip
@@ -21,5 +22,10 @@ After the bot has started, it will reply to your messages with some random stuff
 - ✨ Will soon support sending random media and stickers! ✨
 - You can change bot settings from @BotFather. 
 - [Further information on Telegram Offical Documentation](https://core.telegram.org/bots/api)
+
+***
+
+### 🔥 Changelog Ver. 0.2.1 🔥
+- Now with support of adding and sending random stickers!
 
 
