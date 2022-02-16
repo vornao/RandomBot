@@ -171,5 +171,7 @@ def main():
 if __name__=='__main__':
     setup()
     main()
-    if DB_READER is not None: DB_READER.close()
-    if DB_WRITER is not None: DB_WRITER.close()
+    if DB_READER is not None: 
+        DB_READER.close()
+    if DB_WRITER is not None: 
+        DB_WRITER.close()

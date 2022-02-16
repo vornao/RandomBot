@@ -1,28 +1,29 @@
+import logging
+import sqlite3
+import random
 
 from queue import Queue
 from functools import wraps
 from uuid import uuid4
+
 from telegram.ext import ConversationHandler, CallbackContext
 from telegram.inline.inputtextmessagecontent import InputTextMessageContent
-from telegram import InlineQueryResultCachedAudio, InlineQueryResultCachedDocument, InlineQueryResultCachedPhoto, Update, InlineQueryResultArticle, InlineQueryResultCachedSticker
+from telegram import InlineQueryResultCachedDocument, InlineQueryResultCachedPhoto, Update, InlineQueryResultArticle, InlineQueryResultCachedSticker
 
 from const import *
 from config import ALLOWED
 from utils import * 
 
 import config as botreplies
-import logging
-import sqlite3
-import random
 
-queue: Queue
-db_reader: sqlite3.Connection
+QUEUE: Queue
+DB_READER: sqlite3.Connection
 
 def init(reader, q):
-    global queue 
-    global db_reader
-    queue = q
-    db_reader = reader
+    global QUEUE 
+    global DB_READER
+    QUEUE = q
+    DB_READER = reader
 
 def restricted(handler):
     """If allowed list is not empty, will restrict access to specified user IDs"""
@@ -36,16 +37,18 @@ def restricted(handler):
         try: 
             user_id = update.message.from_user.id
             username = update.message.from_user.username
-        except: pass
-
+        except Exception as e: 
+            logging.error(e)
+            
         try: 
             user_id = update.inline_query.from_user.id
             username = update.inline_query.from_user.username
-        except: pass
+        except Exception as e: 
+            logging.error(e)
     
         if user_id not in ALLOWED and ALLOWED:
             logging.critical(f'UNAUTHORIZED USER TRIED TO ACCESS BOT! USERNAME: {username}, UID {user_id}')
-            return
+            return None
         return handler(update, context)
     return wrapped
 
@@ -61,24 +64,24 @@ def start_handler(update: Update , context: CallbackContext) -> None:
 @restricted
 def send_sticker(update: Update, context: CallbackContext):
     """Handle /sendsticker command"""
-    update.message.reply_sticker(sticker=get_random_sticker(db_reader, 1)[0])
+    update.message.reply_sticker(sticker=get_random_sticker(DB_READER, 1)[0])
 
 
 @restricted
 def send_photo(update: Update, context):   
     """Handle /sendphoto command"""
-    update.message.reply_photo(photo=get_random_photo(db_reader, 1)[0])
+    update.message.reply_photo(photo=get_random_photo(DB_READER, 1)[0])
 
 @restricted
 def send_text(update: Update, context):   
     """Handle /sendphoto command"""
-    update.message.reply_text(get_random_word(db_reader, 1)[0])
+    update.message.reply_text(get_random_word(DB_READER, 1)[0])
 
 
 @restricted
 def send_music(update: Update, context):    
     """Handle /sendmusic command"""    
-    update.message.reply_audio(audio=get_random_music(db_reader, 1)[0])
+    update.message.reply_audio(audio=get_random_music(DB_READER, 1)[0])
 
 handlers = [send_text, send_photo, send_sticker, send_music]
 
@@ -102,7 +105,7 @@ def add_word(update: Update, context: CallbackContext):
 def store_word(update: Update, context: CallbackContext):
     """ actually store word in db """
 
-    queue.put({'type' : 'word', 'value': update.message.text})
+    QUEUE.put({'type' : 'word', 'value': update.message.text})
 
     update.message.reply_text(botreplies.CONTENT_ADDED_MSG)
 
@@ -122,8 +125,8 @@ def add_sticker(update, context):
 
 
 def store_sticker(update: Update, context):
-    queue.put({
-        'type' : 'sticker', 
+    QUEUE.put({
+        'type' : 'sticker',
         'uid': update.message.sticker.file_unique_id, 
         'tid': update.message.sticker.file_id
         }
@@ -138,8 +141,8 @@ def add_music(update, context):
 
 
 def store_music(update: Update, context):
-    queue.put({
-        'type' : 'music', 
+    QUEUE.put({
+        'type' : 'music',
         'uid': update.message.audio.file_unique_id, 
         'tid': update.message.audio.file_id
         }
@@ -154,8 +157,8 @@ def add_photo(update, context):
 
 
 def store_photo(update: Update, context):
-    queue.put({
-        'type' : 'photo', 
+    QUEUE.put({
+        'type' : 'photo',
         'uid': update.message.photo[1].file_unique_id,
         'tid': update.message.photo[1].file_id
         }
@@ -165,8 +168,8 @@ def store_photo(update: Update, context):
 
 @restricted
 def direct_store_photo(update: Update, context):
-    queue.put({
-        'type' : 'photo', 
+    QUEUE.put({
+        'type' : 'photo',
         'uid': update.message.photo[1].file_unique_id,
         'tid': update.message.photo[1].file_id
         }
@@ -232,7 +235,7 @@ def inlinequery(update: Update, context: CallbackContext):
 
 def get_music_inline_result(quantity: int) -> list:
     
-    songs =  get_random_music(db_reader, quantity)
+    songs =  get_random_music(DB_READER, quantity)
 
     # using document to prevent bot from crashing when mp3 files have no title
     return [
@@ -247,7 +250,7 @@ def get_music_inline_result(quantity: int) -> list:
 
 def get_word_inline_result(quantity: int) -> list:
     
-    quotes = get_random_word(db_reader, quantity)
+    quotes = get_random_word(DB_READER, quantity)
     return [ 
         InlineQueryResultArticle(
             id=uuid4(),
@@ -260,7 +263,7 @@ def get_word_inline_result(quantity: int) -> list:
 
 def get_photo_inline_result(quantity: int) -> list:
     
-    photos =  get_random_photo(db_reader, quantity)
+    photos =  get_random_photo(DB_READER, quantity)
     return [
         InlineQueryResultCachedPhoto(
                     id=uuid4(),
@@ -269,7 +272,7 @@ def get_photo_inline_result(quantity: int) -> list:
 
 
 def get_sticker_inline_result(quantity: int) -> list:
-    stickers =  get_random_sticker(db_reader, quantity)
+    stickers =  get_random_sticker(DB_READER, quantity)
     return [
         InlineQueryResultCachedSticker(
         id=uuid4(),
