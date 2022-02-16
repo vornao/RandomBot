@@ -3,39 +3,41 @@
 
 #ver 0.2.0
 
-import logging, threading
+import logging
+import threading
+import hashlib
 import queue as queues
-import botcommands as commands
 import sqlite3 as db
 import os.path as path
+import botcommands as commands
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, InlineQueryHandler
 from const import *
 from utils import *
 from config import *
-import hashlib
 
-db_reader: db.Connection = None
-db_writer: db.Connection = None
-queue = queues.Queue()
+
+DB_READER: db.Connection = None
+DB_WRITER: db.Connection = None
+QUEUE = queues.Queue()
 
 # logging config 
 logging.basicConfig(filename=PATH_LOG, filemode='a+', format='%(asctime)s - %(levelname)s - %(message)s', level = logging.INFO)
 
 def queue_handler():
-    global db_writer
-    db_writer = db.connect(DB_PATH, check_same_thread=False)
+    global DB_WRITER
+    DB_WRITER = db.connect(DB_PATH, check_same_thread=False)
 
     while True:
-        elem = queue.get()
+        elem = QUEUE.get()
         if elem['type'] == 'word':
-            store_db_word(db_writer, elem['value'])
+            store_db_word(DB_WRITER, elem['value'])
         elif elem['type'] == 'sticker':
-            store_db_sticker(db_writer, elem['uid'], elem['tid'])
+            store_db_sticker(DB_WRITER, elem['uid'], elem['tid'])
         elif elem['type'] == 'photo':
-            store_db_photo(db_writer, elem['uid'], elem['tid'])
+            store_db_photo(DB_WRITER, elem['uid'], elem['tid'])
         elif elem['type'] == 'music':
-            store_db_music(db_writer, elem['uid'], elem['tid'])
+            store_db_music(DB_WRITER, elem['uid'], elem['tid'])
 
 
 def store_db_word(connection: db.Connection, word: str):
@@ -78,19 +80,19 @@ def store_db_music(connection, uid, tid):
 
 def setup():
     """setup things: create looper thread for queue and db connection"""
-    global db_reader 
-    global queue
+    global DB_READER 
+    global QUEUE
 
     if not path.isfile(DB_PATH):
-        db_reader = create_database()
+        DB_READER = create_database()
     else:
-        db_reader = db.connect(DB_PATH, check_same_thread=False)
+        DB_READER = db.connect(DB_PATH, check_same_thread=False)
 
-    # add words in a thread safe way    
+    # add words in a thread safe way
     threading.Thread(target=queue_handler, daemon=True).start()
 
     # setup command handler
-    commands.init(db_reader, queue)
+    commands.init(DB_READER, QUEUE)
 
 
 def create_database() -> db.Connection:
@@ -169,7 +171,5 @@ def main():
 if __name__=='__main__':
     setup()
     main()
-    if db_reader is not None: db_reader.close()
-    if db_writer is not None: db_writer.close()
-
-
+    if DB_READER is not None: DB_READER.close()
+    if DB_WRITER is not None: DB_WRITER.close()

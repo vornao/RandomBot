@@ -36,4 +36,3 @@ def get_random_music(conn: sqlite3.Connection, limit: int) -> str:
     res = cur.fetchall()
     val = [r[0] for r in res]
     return val
-

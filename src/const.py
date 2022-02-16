@@ -62,4 +62,3 @@ INSERT_MUSIC_QUERY = '''
     INSERT INTO music
     VALUES (?, ?)
 '''
-
