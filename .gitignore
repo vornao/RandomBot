@@ -9,6 +9,7 @@ src/__pycache__
 stickers.txt
 venv
 *.txt
+.gitignore
 *.csv
 *.sqlite
 config.py
