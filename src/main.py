@@ -20,7 +20,7 @@ db_writer: db.Connection = None
 queue = queues.Queue()
 
 # logging config 
-logging.basicConfig(filename=PATH_LOG, filemode='a', format='%(asctime)s - %(levelname)s - %(message)s', level = logging.INFO)
+logging.basicConfig(filename=PATH_LOG, filemode='a+', format='%(asctime)s - %(levelname)s - %(message)s', level = logging.INFO)
 
 def queue_handler():
     global db_writer
