@@ -1,13 +1,37 @@
-# MHG V Q
+# Telegram Random Bot
+This is a very simple bot that will reply to you with random quotes chosen from a database.
+Bot will answer in private chat as well as group chats; inline commands are now fully supported!
+This code has been written using python-telegram-bot library.
 
-This is a simple python telegram bot that will send random quotes from a text file.
+---
+### Requirements:
+- Python 3.6.x
+- pip
+- python-telegram-bot (```pip install python-telegram-bot```)
 
-Requirements:
-- Python 3.x
-- python-telegram-bot installed (pip install python-telegram-bot)
+---
+### Installation instructions:
+- Clone repository or download source files with ```git clone```
+- Rename ```config.sample.py``` to ```config.py``` and replace values with your own custom configuration
+- Create a bot with @botfather on telegram, then put your new token in ```config.py``` file. **Keep it a secret**.
+- From @BotFather run ```/setinline``` to enable inline features and ```/setcommands``` in order to let telegram prompt your commands in the chat.
+- From a terminal window now run: ```python3 randomBot.py &``` (the & command will leave it in background) or create Unit service for the script from systemd.
+- If everything gone well, the bot is now running!
+  
+---
+### Bot Usage instructions:
+After the bot has started, it will reply to your messages with some random stuff from the database.  
+- To add contents, use commands listed in ```config.py``` and follow instructions.
+- This bot supports inline commands: type ```@your_bot_username``` in any chat to let him prompt you random quotes! (you can also ask for inline specific content, see config.sample.py)
+- You can change bot settings from @BotFather. 
+- [Further information on Telegram Offical Documentation](https://core.telegram.org/bots/api)
 
-Usage:
-- Put a plain text file in python script directory named "words.txx". This will contain bot's answers to messages
-- If you need authentication, uncomment marked lines and put user ids in a file named allowed.txt in the main project directory
+***
 
-Now with SQLite Database!
+### 🔥 Changelog Ver. 0.2.1 🔥
+- Now with support of adding and sending random stickers!
+
+### 🔥 Changelog Ver. 1.0.0 🔥
+- Now with images, audio, stickers support and improved efficiency with brand new database!
+- Access control list improved
+- Bug fix
