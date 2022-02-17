@@ -6,6 +6,8 @@ This code has been written using python-telegram-bot library.
 
 ![CodeGrade](https://api.codiga.io/project/31355/status/svg)
 ![CodeScore](https://api.codiga.io/project/31355/score/svg)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 ---
 ### Requirements:
 - Python 3.6.x
