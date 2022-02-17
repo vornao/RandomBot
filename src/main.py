@@ -42,15 +42,15 @@ def queue_handler():
     DB_WRITER = db.connect(DB_PATH, check_same_thread=False)
 
     while True:
-        elem = queue.get()
+        elem = QUEUE.get()
         if elem["type"] == "word":
-            store_db_word(db_writer, elem["value"])
+            store_db_word(DB_WRITER, elem["value"])
         elif elem["type"] == "sticker":
-            store_db_sticker(db_writer, elem["uid"], elem["tid"])
+            store_db_sticker(DB_WRITER, elem["uid"], elem["tid"])
         elif elem["type"] == "photo":
-            store_db_photo(db_writer, elem["uid"], elem["tid"])
+            store_db_photo(DB_WRITER, elem["uid"], elem["tid"])
         elif elem["type"] == "music":
-            store_db_music(db_writer, elem["uid"], elem["tid"])
+            store_db_music(DB_WRITER, elem["uid"], elem["tid"])
 
 
 def store_db_word(connection: db.Connection, word: str):
@@ -93,8 +93,8 @@ def store_db_music(connection, uid, tid):
 
 def setup():
     """setup things: create looper thread for queue and db connection"""
-    global db_reader
-    global queue
+    global DB_READER
+    global QUEUE
 
     if not path.isfile(DB_PATH):
         DB_READER = create_database()
@@ -172,7 +172,7 @@ def main():
 if __name__ == "__main__":
     setup()
     main()
-    if db_reader is not None:
-        db_reader.close()
-    if db_writer is not None:
-        db_writer.close()
+    if DB_READER is not None:
+        DB_READER.close()
+    if DB_WRITER is not None:
+        DB_WRITER.close()

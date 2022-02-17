@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-=======
 import logging
 import sqlite3
 import random
 
->>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
 from queue import Queue
 from functools import wraps
 from uuid import uuid4
@@ -12,17 +9,24 @@ from uuid import uuid4
 from telegram.ext import ConversationHandler, CallbackContext
 from telegram.inline.inputtextmessagecontent import InputTextMessageContent
 <<<<<<< HEAD
+<<<<<<< HEAD
 from telegram import (
     InlineQueryResultCachedAudio,
+=======
+from telegram import (
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
     InlineQueryResultCachedDocument,
     InlineQueryResultCachedPhoto,
     Update,
     InlineQueryResultArticle,
     InlineQueryResultCachedSticker,
 )
+<<<<<<< HEAD
 =======
 from telegram import InlineQueryResultCachedDocument, InlineQueryResultCachedPhoto, Update, InlineQueryResultArticle, InlineQueryResultCachedSticker
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
 
 from const import *
 from config import ALLOWED
@@ -36,16 +40,21 @@ DB_READER: sqlite3.Connection
 
 def init(reader, q):
 <<<<<<< HEAD
+<<<<<<< HEAD
     global queue
     global db_reader
     queue = q
     db_reader = reader
 =======
     global QUEUE 
+=======
+    global QUEUE
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
     global DB_READER
     QUEUE = q
     DB_READER = reader
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+
 
 
 def restricted(handler):
@@ -60,6 +69,7 @@ def restricted(handler):
         try:
             user_id = update.message.from_user.id
             username = update.message.from_user.username
+<<<<<<< HEAD
 <<<<<<< HEAD
         except:
             pass
@@ -77,16 +87,21 @@ def restricted(handler):
             return
 =======
         except Exception as e: 
+=======
+        except Exception as e:
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
             logging.error(e)
-            
-        try: 
+
+        try:
             user_id = update.inline_query.from_user.id
             username = update.inline_query.from_user.username
-        except Exception as e: 
+        except Exception as e:
             logging.error(e)
-    
+
         if user_id not in ALLOWED and ALLOWED:
-            logging.critical(f'UNAUTHORIZED USER TRIED TO ACCESS BOT! USERNAME: {username}, UID {user_id}')
+            logging.critical(
+                f"UNAUTHORIZED USER TRIED TO ACCESS BOT! USERNAME: {username}, UID {user_id}"
+            )
             return None
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
         return handler(update, context)
@@ -125,14 +140,20 @@ def send_text(update: Update, context):
 
 @restricted
 <<<<<<< HEAD
+<<<<<<< HEAD
 def send_music(update: Update, context):
     """Handle /sendmusic command"""
     update.message.reply_audio(audio=get_random_music(db_reader, 1)[0])
 =======
 def send_music(update: Update, context):    
     """Handle /sendmusic command"""    
+=======
+def send_music(update: Update, context):
+    """Handle /sendmusic command"""
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
     update.message.reply_audio(audio=get_random_music(DB_READER, 1)[0])
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+
 
 
 handlers = [send_text, send_photo, send_sticker, send_music]
@@ -158,10 +179,14 @@ def store_word(update: Update, context: CallbackContext):
     """actually store word in db"""
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     queue.put({"type": "word", "value": update.message.text})
 =======
     QUEUE.put({'type' : 'word', 'value': update.message.text})
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+    QUEUE.put({"type": "word", "value": update.message.text})
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
 
     update.message.reply_text(botreplies.CONTENT_ADDED_MSG)
 
@@ -183,17 +208,24 @@ def add_sticker(update, context):
 
 def store_sticker(update: Update, context):
 <<<<<<< HEAD
+<<<<<<< HEAD
     queue.put(
+=======
+    QUEUE.put(
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         {
             "type": "sticker",
             "uid": update.message.sticker.file_unique_id,
             "tid": update.message.sticker.file_id,
+<<<<<<< HEAD
 =======
     QUEUE.put({
         'type' : 'sticker',
         'uid': update.message.sticker.file_unique_id, 
         'tid': update.message.sticker.file_id
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         }
     )
     return STATE_ADDSTICKER
@@ -207,17 +239,24 @@ def add_music(update, context):
 
 def store_music(update: Update, context):
 <<<<<<< HEAD
+<<<<<<< HEAD
     queue.put(
+=======
+    QUEUE.put(
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         {
             "type": "music",
             "uid": update.message.audio.file_unique_id,
             "tid": update.message.audio.file_id,
+<<<<<<< HEAD
 =======
     QUEUE.put({
         'type' : 'music',
         'uid': update.message.audio.file_unique_id, 
         'tid': update.message.audio.file_id
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         }
     )
     return STATE_ADDMUSIC
@@ -231,17 +270,24 @@ def add_photo(update, context):
 
 def store_photo(update: Update, context):
 <<<<<<< HEAD
+<<<<<<< HEAD
     queue.put(
+=======
+    QUEUE.put(
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         {
             "type": "photo",
             "uid": update.message.photo[1].file_unique_id,
             "tid": update.message.photo[1].file_id,
+<<<<<<< HEAD
 =======
     QUEUE.put({
         'type' : 'photo',
         'uid': update.message.photo[1].file_unique_id,
         'tid': update.message.photo[1].file_id
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         }
     )
     return STATE_ADDPHOTO
@@ -250,17 +296,24 @@ def store_photo(update: Update, context):
 @restricted
 def direct_store_photo(update: Update, context):
 <<<<<<< HEAD
+<<<<<<< HEAD
     queue.put(
+=======
+    QUEUE.put(
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         {
             "type": "photo",
             "uid": update.message.photo[1].file_unique_id,
             "tid": update.message.photo[1].file_id,
+<<<<<<< HEAD
 =======
     QUEUE.put({
         'type' : 'photo',
         'uid': update.message.photo[1].file_unique_id,
         'tid': update.message.photo[1].file_id
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         }
     )
 
@@ -332,12 +385,17 @@ def inlinequery(update: Update, context: CallbackContext):
 
 def get_music_inline_result(quantity: int) -> list:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     songs = get_random_music(db_reader, quantity)
 =======
     
     songs =  get_random_music(DB_READER, quantity)
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+
+    songs = get_random_music(DB_READER, quantity)
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
 
     # using document to prevent bot from crashing when mp3 files have no title
     return [
@@ -353,6 +411,7 @@ def get_music_inline_result(quantity: int) -> list:
 
 def get_word_inline_result(quantity: int) -> list:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     quotes = get_random_word(db_reader, quantity)
     return [
@@ -361,6 +420,11 @@ def get_word_inline_result(quantity: int) -> list:
     quotes = get_random_word(DB_READER, quantity)
     return [ 
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+
+    quotes = get_random_word(DB_READER, quantity)
+    return [
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
         InlineQueryResultArticle(
             id=uuid4(),
             title=botreplies.INLINE_QUERY_REPLY,
@@ -373,12 +437,17 @@ def get_word_inline_result(quantity: int) -> list:
 
 def get_photo_inline_result(quantity: int) -> list:
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     photos = get_random_photo(db_reader, quantity)
 =======
     
     photos =  get_random_photo(DB_READER, quantity)
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+
+    photos = get_random_photo(DB_READER, quantity)
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
     return [
         InlineQueryResultCachedPhoto(id=uuid4(), photo_file_id=photo)
         for photo in photos
@@ -387,10 +456,14 @@ def get_photo_inline_result(quantity: int) -> list:
 
 def get_sticker_inline_result(quantity: int) -> list:
 <<<<<<< HEAD
+<<<<<<< HEAD
     stickers = get_random_sticker(db_reader, quantity)
 =======
     stickers =  get_random_sticker(DB_READER, quantity)
 >>>>>>> b67f1a0d5e4bbc74e212f138f6539ecccd1aecfd
+=======
+    stickers = get_random_sticker(DB_READER, quantity)
+>>>>>>> 3324006ec274c916e53a6f4c98b8e2545697e0cf
     return [
         InlineQueryResultCachedSticker(id=uuid4(), sticker_file_id=sticker)
         for sticker in stickers
