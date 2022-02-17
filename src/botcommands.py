@@ -22,6 +22,7 @@ from utils import *
 
 import config as botreplies
 
+
 QUEUE: Queue
 DB_READER: sqlite3.Connection
 
