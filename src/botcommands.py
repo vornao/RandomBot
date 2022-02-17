@@ -39,7 +39,7 @@ def restricted(handler):
     @wraps(handler)
     def wrapped(update: Update, context, *args, **kwargs):
         user_id = None
-        username = None
+        usename = None
 
         # check if it's a message or an inline query
         try:
