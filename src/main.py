@@ -3,11 +3,13 @@
 
 # ver 0.2.0
 
-import logging, threading
+import logging
+import threading
+import hashlib
 import queue as queues
-import botcommands as commands
 import sqlite3 as db
 import os.path as path
+import botcommands as commands
 
 from telegram.ext import (
     Updater,
@@ -20,11 +22,11 @@ from telegram.ext import (
 from const import *
 from utils import *
 from config import *
-import hashlib
 
-db_reader: db.Connection = None
-db_writer: db.Connection = None
-queue = queues.Queue()
+
+DB_READER: db.Connection = None
+DB_WRITER: db.Connection = None
+QUEUE = queues.Queue()
 
 # logging config
 logging.basicConfig(
@@ -36,8 +38,8 @@ logging.basicConfig(
 
 
 def queue_handler():
-    global db_writer
-    db_writer = db.connect(DB_PATH, check_same_thread=False)
+    global DB_WRITER
+    DB_WRITER = db.connect(DB_PATH, check_same_thread=False)
 
     while True:
         elem = queue.get()
@@ -95,15 +97,15 @@ def setup():
     global queue
 
     if not path.isfile(DB_PATH):
-        db_reader = create_database()
+        DB_READER = create_database()
     else:
-        db_reader = db.connect(DB_PATH, check_same_thread=False)
+        DB_READER = db.connect(DB_PATH, check_same_thread=False)
 
     # add words in a thread safe way
     threading.Thread(target=queue_handler, daemon=True).start()
 
     # setup command handler
-    commands.init(db_reader, queue)
+    commands.init(DB_READER, QUEUE)
 
 
 def create_database() -> db.Connection:

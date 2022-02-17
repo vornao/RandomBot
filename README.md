@@ -1,8 +1,11 @@
 # Telegram Random Bot
+
 This is a very simple bot that will reply to you with random quotes chosen from a database.
 Bot will answer in private chat as well as group chats; inline commands are now fully supported!
 This code has been written using python-telegram-bot library.
 
+![CodeGrade](https://api.codiga.io/project/31355/status/svg)
+![CodeScore](https://api.codiga.io/project/31355/score/svg)
 ---
 ### Requirements:
 - Python 3.6.x
