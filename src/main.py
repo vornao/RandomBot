@@ -51,8 +51,8 @@ def queue_handler():
             store_db_photo(DB_WRITER, elem["uid"], elem["tid"])
         elif elem["type"] == "music":
             store_db_music(DB_WRITER, elem["uid"], elem["tid"])
-        elif elem["type"] == 'chat':
-            store_db_chat(DB_WRITER, elem['id'])
+        elif elem["type"] == "chat":
+            store_db_chat(DB_WRITER, elem["id"])
 
 
 def store_db_word(connection: db.Connection, word: str):

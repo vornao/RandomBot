@@ -48,14 +48,14 @@ def restricted(handler):
             username = update.message.from_user.username
         except Exception as e:
             pass
-            #logging.error(e)
+            # logging.error(e)
 
         try:
             user_id = update.inline_query.from_user.id
             username = update.inline_query.from_user.username
         except Exception as e:
             pass
-            #logging.error(e)
+            # logging.error(e)
 
         if user_id not in ALLOWED and ALLOWED:
             logging.critical(
@@ -72,10 +72,12 @@ def start_handler(update: Update, context: CallbackContext) -> None:
     """Handle /start command"""
     update.message.reply_text(botreplies.START_MSG)
     BOT_ENABLED[update.message.chat_id] = True
-    QUEUE.put({
-        "type": 'chat',
-        'id': update.message.chat_id,
-    })
+    QUEUE.put(
+        {
+            "type": "chat",
+            "id": update.message.chat_id,
+        }
+    )
     logging.info(
         "User Started BOT (User: %s, id: %d)",
         update.message.from_user.username,
@@ -121,12 +123,16 @@ def send_random_message(update: Update, context: CallbackContext):
 
     if update.message.text in TOGGLE_BOT_KEYWORD:
         try:
-            BOT_ENABLED[update.message.chat_id] = not BOT_ENABLED[update.message.chat_id]
+            BOT_ENABLED[update.message.chat_id] = not BOT_ENABLED[
+                update.message.chat_id
+            ]
         except KeyError:
-            QUEUE.put({
-                "type": 'chat',
-                'id': update.message.chat_id,
-            })
+            QUEUE.put(
+                {
+                    "type": "chat",
+                    "id": update.message.chat_id,
+                }
+            )
             BOT_ENABLED[update.message.chat_id] = False
 
         update.message.reply_text(random.choice(TOGGLE_BOT_ANSWERS))
@@ -136,10 +142,12 @@ def send_random_message(update: Update, context: CallbackContext):
         if BOT_ENABLED[update.message.chat_id]:
             random.choices(handlers, (90, 20, 10, 20))[0](update, context)
     except KeyError:
-        QUEUE.put({
-            "type": 'chat',
-            'id': update.message.chat_id,
-        })
+        QUEUE.put(
+            {
+                "type": "chat",
+                "id": update.message.chat_id,
+            }
+        )
         BOT_ENABLED[update.message.chat_id] = True
         random.choices(handlers, (90, 20, 10, 20))[0](update, context)
 

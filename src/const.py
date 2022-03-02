@@ -7,7 +7,7 @@ STATE_ADDMUSIC = int(4)
 USER_NOT_VALID = "You are not allowed to access this bot's contents."
 USER_NOT_VALID_LOG = "Not allowed user tried to access bot! (User: %s, id: %d)"
 
-INLINE_CACHE_TIME   = 1
+INLINE_CACHE_TIME = 1
 
 
 RANDOM_WORD_QUERY = "SELECT value FROM words ORDER BY random() LIMIT %d"
@@ -75,4 +75,3 @@ INSERT_CHAT_QUERY = """
     INSERT INTO chats
     VALUES (?)
 """
-
