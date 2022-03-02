@@ -38,3 +38,6 @@ After the bot has started, it will reply to your messages with some random stuff
 - Now with images, audio, stickers support and improved efficiency with brand new database!
 - Access control list improved
 - Bug fix
+
+### 🔥 Changelog Ver. 1.1.0 🔥
+- Added toggle for messages in group chats
