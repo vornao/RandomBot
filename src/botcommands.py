@@ -163,7 +163,7 @@ def store_word(update: Update, context: CallbackContext):
     """actually store word in db"""
 
     QUEUE.put({"type": "word", "value": update.message.text})
-    
+
     logging.info(
         "User Added Word! (User: %s, id: %d, Word: %s)",
         update.message.from_user.username,
