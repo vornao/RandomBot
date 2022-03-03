@@ -156,16 +156,14 @@ def send_random_message(update: Update, context: CallbackContext):
 def add_word(update: Update, context: CallbackContext):
     """entry point for bot to add word"""
     update.message.reply_text(botreplies.ASK_WORD)
-    return STATE_ONE
+    return STATE_ADDWORD
 
 
 def store_word(update: Update, context: CallbackContext):
     """actually store word in db"""
 
     QUEUE.put({"type": "word", "value": update.message.text})
-
-    update.message.reply_text(botreplies.CONTENT_ADDED_MSG)
-
+    
     logging.info(
         "User Added Word! (User: %s, id: %d, Word: %s)",
         update.message.from_user.username,
@@ -173,7 +171,7 @@ def store_word(update: Update, context: CallbackContext):
         update.message.text,
     )
 
-    return ConversationHandler.END
+    return STATE_ADDWORD
 
 
 @restricted
@@ -239,6 +237,7 @@ def direct_store_photo(update: Update, context):
     )
 
 
+@restricted
 def stop_conversation(update: Update, context):
     update.message.reply_text(botreplies.CONTENT_ADDED_MSG)
     return ConversationHandler.END

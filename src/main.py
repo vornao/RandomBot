@@ -137,11 +137,11 @@ def main():
 
     updater = Updater(TELEGRAM_BOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
-
+    
     add_word_handler = ConversationHandler(
         entry_points=[CommandHandler(COMMAND_ADD_TEXT, commands.add_word)],
-        states={STATE_ONE: [MessageHandler(Filters.text, commands.store_word)]},
-        fallbacks=[],
+        states={STATE_ADDWORD: [MessageHandler(Filters.text &~ Filters.command, commands.store_word)]},
+        fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)],
     )
 
     add_sticker_handler = ConversationHandler(
