@@ -18,13 +18,14 @@ from telegram import (
 )
 
 from const import *
-from config import ALLOWED
+from config import *
 from utils import *
 
 import config as botreplies
 
 QUEUE: Queue
 DB_READER: sqlite3.Connection
+BOT_ENABLED = {}
 
 
 def init(reader, q):
@@ -47,13 +48,15 @@ def restricted(handler):
             user_id = update.message.from_user.id
             username = update.message.from_user.username
         except Exception as e:
-            logging.error(e)
+            pass
+            # logging.error(e)
 
         try:
             user_id = update.inline_query.from_user.id
             username = update.inline_query.from_user.username
         except Exception as e:
-            logging.error(e)
+            pass
+            # logging.error(e)
 
         if user_id not in ALLOWED and ALLOWED:
             logging.critical(
@@ -69,6 +72,13 @@ def restricted(handler):
 def start_handler(update: Update, context: CallbackContext) -> None:
     """Handle /start command"""
     update.message.reply_text(botreplies.START_MSG)
+    BOT_ENABLED[update.message.chat_id] = True
+    QUEUE.put(
+        {
+            "type": "chat",
+            "id": update.message.chat_id,
+        }
+    )
     logging.info(
         "User Started BOT (User: %s, id: %d)",
         update.message.from_user.username,
@@ -109,22 +119,51 @@ def send_random_message(update: Update, context: CallbackContext):
     Handle simple message to bot and return random quote;
     There's 1/9 possibility that bot will return photo or audio instead of text
     """
-    random.choices(handlers, (90, 20, 10, 20))[0](update, context)
+
+    global BOT_ENABLED
+
+    if update.message.text in TOGGLE_BOT_KEYWORD:
+        try:
+            BOT_ENABLED[update.message.chat_id] = not BOT_ENABLED[
+                update.message.chat_id
+            ]
+        except KeyError:
+            QUEUE.put(
+                {
+                    "type": "chat",
+                    "id": update.message.chat_id,
+                }
+            )
+            BOT_ENABLED[update.message.chat_id] = False
+
+        update.message.reply_text(random.choice(TOGGLE_BOT_ANSWERS))
+        return
+
+    try:
+        if BOT_ENABLED[update.message.chat_id]:
+            random.choices(handlers, (90, 20, 10, 20))[0](update, context)
+    except KeyError:
+        QUEUE.put(
+            {
+                "type": "chat",
+                "id": update.message.chat_id,
+            }
+        )
+        BOT_ENABLED[update.message.chat_id] = True
+        random.choices(handlers, (90, 20, 10, 20))[0](update, context)
 
 
 @restricted
 def add_word(update: Update, context: CallbackContext):
     """entry point for bot to add word"""
     update.message.reply_text(botreplies.ASK_WORD)
-    return STATE_ONE
+    return STATE_ADDWORD
 
 
 def store_word(update: Update, context: CallbackContext):
     """actually store word in db"""
 
     QUEUE.put({"type": "word", "value": update.message.text})
-
-    update.message.reply_text(botreplies.CONTENT_ADDED_MSG)
 
     logging.info(
         "User Added Word! (User: %s, id: %d, Word: %s)",
@@ -133,7 +172,7 @@ def store_word(update: Update, context: CallbackContext):
         update.message.text,
     )
 
-    return ConversationHandler.END
+    return STATE_ADDWORD
 
 
 @restricted
@@ -189,6 +228,7 @@ def store_photo(update: Update, context):
 
 @restricted
 def direct_store_photo(update: Update, context):
+    update.message.reply_text(random.choice(PHOTO_ADDED_REPLY))
     QUEUE.put(
         {
             "type": "photo",
@@ -198,6 +238,7 @@ def direct_store_photo(update: Update, context):
     )
 
 
+@restricted
 def stop_conversation(update: Update, context):
     update.message.reply_text(botreplies.CONTENT_ADDED_MSG)
     return ConversationHandler.END

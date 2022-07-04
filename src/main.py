@@ -51,6 +51,8 @@ def queue_handler():
             store_db_photo(DB_WRITER, elem["uid"], elem["tid"])
         elif elem["type"] == "music":
             store_db_music(DB_WRITER, elem["uid"], elem["tid"])
+        elif elem["type"] == "chat":
+            store_db_chat(DB_WRITER, elem["id"])
 
 
 def store_db_word(connection: db.Connection, word: str):
@@ -62,6 +64,16 @@ def store_db_word(connection: db.Connection, word: str):
         logging.info(f"Added word to db ({word})")
     except Exception as e:
         logging.error(f"Failed to add word: {e}")
+
+
+def store_db_chat(connection: db.Connection, chat_id: int):
+    try:
+        id = str(chat_id)
+        connection.execute(INSERT_CHAT_QUERY, (id,))
+        connection.commit()
+        logging.info(f"Added chat to db ({chat_id})")
+    except Exception as e:
+        logging.error(f"Failed to add chat: {e}")
 
 
 def store_db_sticker(connection: db.Connection, uid: str, tid: str):
@@ -116,6 +128,7 @@ def create_database() -> db.Connection:
     con.execute(CREATE_STICKER_TABLE_QUERY)
     con.execute(CREATE_IMAGES_TABLE_QUERY)
     con.execute(CREATE_MUSIC_TABLE_QUERY)
+    con.execute(CREATE_CHATS_TABLE_QUERY)
     con.commit()
     return con
 
@@ -127,8 +140,12 @@ def main():
 
     add_word_handler = ConversationHandler(
         entry_points=[CommandHandler(COMMAND_ADD_TEXT, commands.add_word)],
-        states={STATE_ONE: [MessageHandler(Filters.text, commands.store_word)]},
-        fallbacks=[],
+        states={
+            STATE_ADDWORD: [
+                MessageHandler(Filters.text & ~Filters.command, commands.store_word)
+            ]
+        },
+        fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)],
     )
 
     add_sticker_handler = ConversationHandler(

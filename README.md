@@ -20,7 +20,7 @@ This code has been written using python-telegram-bot library.
 - Rename ```config.sample.py``` to ```config.py``` and replace values with your own custom configuration
 - Create a bot with @botfather on telegram, then put your new token in ```config.py``` file. **Keep it a secret**.
 - From @BotFather run ```/setinline``` to enable inline features and ```/setcommands``` in order to let telegram prompt your commands in the chat.
-- From a terminal window now run: ```python3 randomBot.py &``` (the & command will leave it in background) or create Unit service for the script from systemd.
+- From a terminal window now run: ```python3 main.py &``` (the & command will leave it in background) or create Unit service for the script from systemd.
 - If everything gone well, the bot is now running!
   
 ---
@@ -40,3 +40,6 @@ After the bot has started, it will reply to your messages with some random stuff
 - Now with images, audio, stickers support and improved efficiency with brand new database!
 - Access control list improved
 - Bug fix
+
+### 🔥 Changelog Ver. 1.1.0 🔥
+- Added toggle for messages in group chats

@@ -21,8 +21,12 @@ DB_PATH = "../files/random-bot.sqlite"
 # message for /start command
 START_MSG = "Random Bot started!"
 
+TOGGLE_BOT_KEYWORD = ["ciao bot", "Ciao bot"]
+TOGGLE_BOT_ANSWERS = ["bot enabled!", "hello there!"]
+
 # answer when conversation ends
 CONTENT_ADDED_MSG = "Done!"
+PHOTO_ADDED_REPLY = ["photo added!"]
 
 # replies for /add* commands
 ASK_WORD = "Send me a new quote!"
