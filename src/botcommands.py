@@ -28,11 +28,16 @@ DB_READER: sqlite3.Connection
 BOT_ENABLED = {}
 
 
+queryHolder = {}
+
 def init(reader, q):
     global QUEUE
     global DB_READER
     QUEUE = q
     DB_READER = reader
+
+
+
 
 
 def restricted(handler):
@@ -108,6 +113,13 @@ def send_text(update: Update, context):
 def send_music(update: Update, context):
     """Handle /sendmusic command"""
     update.message.reply_audio(audio=get_random_music(DB_READER, 1)[0])
+
+
+@restricted
+def send_gif(update: Update, context):    
+    """Handle /sendmusic command"""    
+    update.message.reply_audio(audio=get_random_gif(db_reader, 1)[0])
+
 
 
 handlers = [send_text, send_photo, send_sticker, send_music]
@@ -225,6 +237,21 @@ def store_photo(update: Update, context):
     )
     return STATE_ADDPHOTO
 
+@restricted
+def add_gif(update, context):
+    update.message.reply_text(botreplies.ASK_GIF)
+    return STATE_ADDGIF
+
+
+def store_gif(update: Update, context):
+    queue.put({
+        'type' : 'gif', 
+        'uid': update.message.animation.file_unique_id,
+        'tid': update.message.animation.file_id
+        }
+    )
+    return STATE_ADDGIF    
+
 
 @restricted
 def direct_store_photo(update: Update, context):
@@ -248,6 +275,8 @@ def stop_conversation(update: Update, context):
 ### inline query handler ###
 ############################
 
+def gifs_inline_query_result(update: Update):
+    update.inline_query.answer(get_gif_inline_result(6), cache_time= INLINE_CACHE_TIME)
 
 def stickers_inline_query_result(update: Update):
     update.inline_query.answer(
@@ -287,7 +316,7 @@ answers = {
 
 
 def random_inline_query_result():
-    return random.choices(funcs, (10, 20, 10, 90))[0]
+    return random.choices(funcs, (10, 20, 10, 90, 10))[0]
 
 
 @restricted
@@ -302,6 +331,26 @@ def inlinequery(update: Update, context: CallbackContext):
         answers[query](update)
     else:
         random_inline_query_result()(update)
+
+@restricted
+def ask_custom_reply(update: Update, context: CallbackContext):
+    update.message.reply_text("Scrivi il messaggio al quale devo rispondere!")
+    queryHolder[update.message.chat_id] = CustomQueryDataHolder(None, None)
+    return STATE_ADD_QUERY
+
+def ask_custom_query(update: Update, context: CallbackContext):
+    queryHolder[update.message.chat_id].query = update.message.text
+    print("ASK QUERY: " + update.message.text)
+    update.message.reply_text("ok! ora scrivi la risposta che dovrò dare per questo messaggio")
+    return STATE_ADD_ANSWER
+
+def ask_custom_answer(update: Update, context: CallbackContext):
+    queryHolder[update.message.chat_id].answer = update.message.text
+    print("ASK ANS: "+ update.message.text)
+    queue.put( {'type': 'customreply','value': queryHolder[update.message.chat_id]})
+    update.message.reply_text(f"{queryHolder[update.message.chat_id].query} -> {queryHolder[update.message.chat_id].answer}")
+    del queryHolder[update.message.chat_id]
+    return ConversationHandler.END
 
 
 def get_music_inline_result(quantity: int) -> list:

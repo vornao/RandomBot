@@ -40,3 +40,26 @@ def get_random_music(conn: sqlite3.Connection, limit: int) -> str:
     res = cur.fetchall()
     val = [r[0] for r in res]
     return val
+
+def get_random_gif(conn: sqlite3.Connection, limit: int) -> str:
+    cur = conn.execute(RANDOM_GIF_QUERY % limit)
+    res = cur.fetchall()
+    val = [r[0] for r in res]
+    return val
+
+class CustomQueryDataHolder:
+    def __init__(self, query: str, ans: str):
+        self.query = query
+        self.answer = ans
+
+def get_custom_reply(conn: sqlite3.Connection, limit: int, query: str):
+    cur = conn.execute(CUSTOM_REPLY_QUERY, (query,))
+    res = cur.fetchall()
+    if len(res) > 0:
+        return res[0]
+    else:
+        return None
+
+
+
+ 

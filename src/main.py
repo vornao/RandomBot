@@ -37,6 +37,43 @@ logging.basicConfig(
 )
 
 
+first_start= True
+
+def message_scheduler_thread():
+    first_start = True
+    worker = db.connect(DB_PATH, check_same_thread=False)
+    bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
+    handlers = [get_random_sticker, get_random_photo, get_random_word]
+    logging.info("Message scheduler started")
+
+    def send(type: int, chatid: int):
+        if type == 0:
+            msg = handlers[0](worker, 1)
+            bot.sendSticker(chatid, msg[0])
+        if type == 1:
+            msg = handlers[1](worker, 1)
+            bot.sendPhoto(chatid, msg[0])
+        if type == 2:
+            msg = handlers[2](worker, 1)
+            bot.sendMessage(chatid, msg[0])
+
+    while True:
+        ids = worker.execute(GET_CHATID_QUERY).fetchall()
+        for idt in ids:
+            try:
+                if first_start:
+                    bot.sendMessage(idt[0], START_CHAT_MSG)
+                else:
+                    send(random.randint(0,2), idt[0])
+            except Exception as e:
+                logging.error(e)
+            sleep(1)
+        first_start = False
+        #sleep(20)
+        sleep(random.randint(4140,86400))
+
+
+
 def queue_handler():
     global DB_WRITER
     DB_WRITER = db.connect(DB_PATH, check_same_thread=False)
@@ -93,6 +130,22 @@ def store_db_photo(connection, uid, tid):
     except Exception as e:
         logging.error(f"Failed to add photo: {e}")
 
+def store_db_gif(connection, uid, tid):
+    try:
+        connection.execute(INSERT_GIF_QUERY, (uid, tid))
+        connection.commit()
+        logging.info(f"Added gif to db ({uid}, {tid})")
+    except Exception as e:
+        logging.error(f"Failed to add gif: {e}")
+
+
+def store_custom_reply(connection, holder: CustomQueryDataHolder):
+    try:
+        connection.execute(INSERT_CUSTOM_REPLY_QUERY, (holder.query, holder.answer))
+        connection.commit()
+        logging.info(f"Added custom reply to db ({holder.query} -> {holder.answer})")
+    except Exception as e:
+        logging.error(f"Failed to add customreply: {e}")
 
 def store_db_music(connection, uid, tid):
     try:
@@ -101,6 +154,22 @@ def store_db_music(connection, uid, tid):
         logging.info(f"Added song to db ({uid}, {tid})")
     except Exception as e:
         logging.error(f"Failed to add song: {e}")
+
+def store_for_random_messages(connection: db.Connection, chatid: int):
+    try:
+        connection.execute(INSERT_CHATID_QUERY, (chatid,))
+        connection.commit()
+        logging.info(f"Added chat id to random message queue({chatid})")
+    except Exception as e:
+        logging.info(f"Failed to add chatid({e})")
+
+def cancel_for_random_messages(connection: db.Connection, chatid: int):
+    try:
+        connection.execute(REMOVE_CHATID_QUERY, (chatid,))
+        connection.commit()
+        logging.info(f"Removed chat id to random message queue({chatid})")
+    except Exception as e:
+        logging.info(f"Failed to delete chatid({e})")
 
 
 def setup():
@@ -115,6 +184,7 @@ def setup():
 
     # add words in a thread safe way
     threading.Thread(target=queue_handler, daemon=True).start()
+    threading.Thread(target=message_scheduler_thread, daemon=True).start()
 
     # setup command handler
     commands.init(DB_READER, QUEUE)
@@ -162,6 +232,16 @@ def main():
         fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)],
     )
 
+    add_gif_handler = ConversationHandler(
+        entry_points=[CommandHandler(COMMAND_ADD_GIF, commands.add_gif)],
+        states={
+            STATE_ADDGIF: [
+                MessageHandler(Filters.animation, commands.store_gif)
+                ]
+            },
+        fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)]
+    )
+
     add_music_handler = ConversationHandler(
         entry_points=[CommandHandler(COMMAND_ADD_AUDIO, commands.add_music)],
         states={STATE_ADDMUSIC: [MessageHandler(Filters.audio, commands.store_music)]},
@@ -172,12 +252,17 @@ def main():
     dispatcher.add_handler(add_sticker_handler)
     dispatcher.add_handler(add_photo_handler)
     dispatcher.add_handler(add_music_handler)
+    dispatcher.add_handler(add_gif_handler)
+    dispatcher.add_handler(add_custom_reply)
     dispatcher.add_handler(InlineQueryHandler(commands.inlinequery))
     dispatcher.add_handler(CommandHandler(COMMAND_SEND_TEXT, commands.send_text))
     dispatcher.add_handler(CommandHandler(COMMAND_START, commands.start_handler))
     dispatcher.add_handler(CommandHandler(COMMAND_SEND_STICKER, commands.send_sticker))
     dispatcher.add_handler(CommandHandler(COMMAND_SEND_PHOTO, commands.send_photo))
+    dispatcher.add_handler(CommandHandler(COMMAND_SEND_GIF, commands.send_gif))
     dispatcher.add_handler(CommandHandler(COMMAND_SEND_AUDIO, commands.send_music))
+    dispatcher.add_handler(CommandHandler(COMMAND_ENABLE_RANDOM, commands.enable_random_messages))
+    dispatcher.add_handler(CommandHandler(COMMAND_DISABLE_RANDOM, commands.disable_random_messages))
     dispatcher.add_handler(MessageHandler(Filters.text, commands.send_random_message))
     dispatcher.add_handler(MessageHandler(Filters.photo, commands.direct_store_photo))
 
