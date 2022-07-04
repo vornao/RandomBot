@@ -10,6 +10,10 @@ import queue as queues
 import sqlite3 as db
 import os.path as path
 import botcommands as commands
+import random
+import threading
+from time import sleep
+import telegram
 
 from telegram.ext import (
     Updater,
@@ -106,7 +110,7 @@ def store_db_word(connection: db.Connection, word: str):
 def store_db_chat(connection: db.Connection, chat_id: int):
     try:
         id = str(chat_id)
-        connection.execute(INSERT_CHAT_QUERY, (id,))
+        connection.execute(INSERT_CHATID_QUERY, (id,))
         connection.commit()
         logging.info(f"Added chat to db ({chat_id})")
     except Exception as e:
@@ -198,7 +202,9 @@ def create_database() -> db.Connection:
     con.execute(CREATE_STICKER_TABLE_QUERY)
     con.execute(CREATE_IMAGES_TABLE_QUERY)
     con.execute(CREATE_MUSIC_TABLE_QUERY)
-    con.execute(CREATE_CHATS_TABLE_QUERY)
+    con.execute(CREATE_RANDOMCHAT_TABLE_QUERY)
+    con.execute(CREATE_GIF_TABLE_QUERY)
+    con.execute(CREATE_CUSTOMREPLY_TABLE_QUERY)
     con.commit()
     return con
 
@@ -246,6 +252,16 @@ def main():
         entry_points=[CommandHandler(COMMAND_ADD_AUDIO, commands.add_music)],
         states={STATE_ADDMUSIC: [MessageHandler(Filters.audio, commands.store_music)]},
         fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)],
+    )
+
+    add_custom_reply = ConversationHandler(
+        entry_points=[CommandHandler(COMMAND_CUSTOM_REPLY, commands.ask_custom_reply)],
+        states=
+            {
+                STATE_ADD_QUERY:  [MessageHandler(Filters.text, commands.ask_custom_query)],
+                STATE_ADD_ANSWER: [MessageHandler(Filters.text, commands.ask_custom_answer)]
+            },
+        fallbacks=[]
     )
 
     dispatcher.add_handler(add_word_handler)
