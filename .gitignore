@@ -13,3 +13,4 @@ venv
 *.csv
 *.sqlite
 config.py
+todo.md
