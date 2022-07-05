@@ -41,7 +41,8 @@ logging.basicConfig(
 )
 
 
-first_start= True
+first_start = True
+
 
 def message_scheduler_thread():
     first_start = True
@@ -68,14 +69,13 @@ def message_scheduler_thread():
                 if first_start:
                     bot.sendMessage(idt[0], START_CHAT_MSG)
                 else:
-                    send(random.randint(0,2), idt[0])
+                    send(random.randint(0, 2), idt[0])
             except Exception as e:
                 logging.error(e)
             sleep(1)
         first_start = False
-        #sleep(20)
-        sleep(random.randint(4140,86400))
-
+        # sleep(20)
+        sleep(random.randint(4140, 86400))
 
 
 def queue_handler():
@@ -92,15 +92,14 @@ def queue_handler():
             store_db_photo(DB_WRITER, elem["uid"], elem["tid"])
         elif elem["type"] == "music":
             store_db_music(DB_WRITER, elem["uid"], elem["tid"])
-        elif elem['type'] == 'enablerandomchat':
-            store_for_random_messages(DB_WRITER, elem['value'])
-        elif elem['type'] == 'disablerandomchat':
-            cancel_for_random_messages(DB_WRITER, elem['value'])
-        elif elem['type'] == 'gif':
-            store_db_gif(DB_WRITER, elem['uid'], elem['tid'])
-        elif elem['type'] == 'customreply':
-            store_custom_reply(DB_WRITER, elem['value'])
-
+        elif elem["type"] == "enablerandomchat":
+            store_for_random_messages(DB_WRITER, elem["value"])
+        elif elem["type"] == "disablerandomchat":
+            cancel_for_random_messages(DB_WRITER, elem["value"])
+        elif elem["type"] == "gif":
+            store_db_gif(DB_WRITER, elem["uid"], elem["tid"])
+        elif elem["type"] == "customreply":
+            store_custom_reply(DB_WRITER, elem["value"])
 
 
 def store_db_word(connection: db.Connection, word: str):
@@ -141,6 +140,7 @@ def store_db_photo(connection, uid, tid):
     except Exception as e:
         logging.error(f"Failed to add photo: {e}")
 
+
 def store_db_gif(connection, uid, tid):
     try:
         connection.execute(INSERT_GIF_QUERY, (uid, tid))
@@ -158,6 +158,7 @@ def store_custom_reply(connection, holder: CustomQueryDataHolder):
     except Exception as e:
         logging.error(f"Failed to add customreply: {e}")
 
+
 def store_db_music(connection, uid, tid):
     try:
         connection.execute(INSERT_MUSIC_QUERY, (uid, tid))
@@ -166,6 +167,7 @@ def store_db_music(connection, uid, tid):
     except Exception as e:
         logging.error(f"Failed to add song: {e}")
 
+
 def store_for_random_messages(connection: db.Connection, chatid: int):
     try:
         connection.execute(INSERT_CHATID_QUERY, (chatid,))
@@ -173,6 +175,7 @@ def store_for_random_messages(connection: db.Connection, chatid: int):
         logging.info(f"Added chat id to random message queue({chatid})")
     except Exception as e:
         logging.info(f"Failed to add chatid({e})")
+
 
 def cancel_for_random_messages(connection: db.Connection, chatid: int):
     try:
@@ -247,12 +250,8 @@ def main():
 
     add_gif_handler = ConversationHandler(
         entry_points=[CommandHandler(COMMAND_ADD_GIF, commands.add_gif)],
-        states={
-            STATE_ADDGIF: [
-                MessageHandler(Filters.animation, commands.store_gif)
-                ]
-            },
-        fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)]
+        states={STATE_ADDGIF: [MessageHandler(Filters.animation, commands.store_gif)]},
+        fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)],
     )
 
     add_music_handler = ConversationHandler(
@@ -263,12 +262,13 @@ def main():
 
     add_custom_reply = ConversationHandler(
         entry_points=[CommandHandler(COMMAND_CUSTOM_REPLY, commands.ask_custom_reply)],
-        states=
-            {
-                STATE_ADD_QUERY:  [MessageHandler(Filters.text, commands.ask_custom_query)],
-                STATE_ADD_ANSWER: [MessageHandler(Filters.text, commands.ask_custom_answer)]
-            },
-        fallbacks=[]
+        states={
+            STATE_ADD_QUERY: [MessageHandler(Filters.text, commands.ask_custom_query)],
+            STATE_ADD_ANSWER: [
+                MessageHandler(Filters.text, commands.ask_custom_answer)
+            ],
+        },
+        fallbacks=[],
     )
 
     dispatcher.add_handler(add_word_handler)
@@ -284,8 +284,12 @@ def main():
     dispatcher.add_handler(CommandHandler(COMMAND_SEND_PHOTO, commands.send_photo))
     dispatcher.add_handler(CommandHandler(COMMAND_SEND_GIF, commands.send_gif))
     dispatcher.add_handler(CommandHandler(COMMAND_SEND_AUDIO, commands.send_music))
-    dispatcher.add_handler(CommandHandler(COMMAND_ENABLE_RANDOM, commands.enable_random_messages))
-    dispatcher.add_handler(CommandHandler(COMMAND_DISABLE_RANDOM, commands.disable_random_messages))
+    dispatcher.add_handler(
+        CommandHandler(COMMAND_ENABLE_RANDOM, commands.enable_random_messages)
+    )
+    dispatcher.add_handler(
+        CommandHandler(COMMAND_DISABLE_RANDOM, commands.disable_random_messages)
+    )
     dispatcher.add_handler(MessageHandler(Filters.text, commands.send_random_message))
     dispatcher.add_handler(MessageHandler(Filters.photo, commands.direct_store_photo))
 
