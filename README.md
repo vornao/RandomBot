@@ -10,7 +10,7 @@ This code has been written using python-telegram-bot library.
 
 ---
 ### Requirements:
-- Python 3.6.x
+- Python 3.9.x
 - pip
 - python-telegram-bot (```pip install python-telegram-bot```)
 
@@ -33,13 +33,8 @@ After the bot has started, it will reply to your messages with some random stuff
 
 ***
 
-### 🔥 Changelog Ver. 0.2.1 🔥
-- Now with support of adding and sending random stickers!
-
-### 🔥 Changelog Ver. 1.0.0 🔥
-- Now with images, audio, stickers support and improved efficiency with brand new database!
-- Access control list improved
-- Bug fix
-
-### 🔥 Changelog Ver. 1.1.0 🔥
+### 🔥 Changelog Ver. 1.3.0 🔥
 - Added toggle for messages in group chats
+- Now with full gif support!
+- Custom replies: make the bot say whaterver you want
+- Schedule message in chats: bot will randomly send message in chat where this function is enabled!
