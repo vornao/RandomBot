@@ -6,7 +6,7 @@ from telegram.inline.inputtextmessagecontent import InputTextMessageContent
 from telegram import InlineQueryResultCachedAudio, InlineQueryResultCachedDocument, InlineQueryResultCachedGif, InlineQueryResultCachedPhoto, Update, InlineQueryResultArticle, InlineQueryResultCachedSticker
 
 from const import *
-from config import ALLOWED
+from config import ALLOWED, TOGGLE_BOT_ANSWERS, TOGGLE_BOT_KEYWORD
 from utils import * 
 
 import config as botreplies
@@ -16,8 +16,8 @@ import random
 
 queue: Queue
 db_reader: sqlite3.Connection
-
 queryHolder = {}
+BOT_ENABLED = {}
 
 def init(reader, q):
     global queue 
@@ -60,6 +60,7 @@ def restricted(handler):
 def start_handler(update: Update , context: CallbackContext) -> None:
     """Handle /start command"""
     update.message.reply_text(botreplies.START_MSG)
+    BOT_ENABLED[update.message.chat_id] = True
     logging.info('User Started BOT (User: %s, id: %d)', update.message.from_user.username, update.message.from_user.id)
 
 
@@ -97,17 +98,37 @@ handlers = [send_text, send_photo, send_sticker, send_music]
 
 @restricted
 def send_random_message(update: Update , context: CallbackContext):
+    global BOT_ENABLED
+
+    if update.message.text in TOGGLE_BOT_KEYWORD:
+        try:
+            BOT_ENABLED[update.message.chat_id] = not BOT_ENABLED[update.message.chat_id]
+        except KeyError:
+            queue.put({
+                "type": 'chat',
+                'id': update.message.chat_id,
+            })
+            BOT_ENABLED[update.message.chat_id] = False
+        update.message.reply_text(random.choice(TOGGLE_BOT_ANSWERS))
+        return
+
 
     reply = get_custom_reply(db_reader, 1, update.message.text)
-    if reply is not None:
-        update.message.reply_text(reply[0])
-    else:
-        """
-        Handle simple message to bot and return random quote;
-        There's 1/9 possibility that bot will return photo or audio instead of text
-        """
-        random.choices(handlers, (90, 20, 10, 20))[0](update, context)    
+    try:
+        if BOT_ENABLED[update.message.chat_id]:
+            if reply is not None:
+                update.message.reply_text(reply[0])
+            else:
+                """
+                Handle simple message to bot and return random quote;
+                There's 1/9 possibility that bot will return photo or audio instead of text
+                """
+                random.choices(handlers, (90, 20, 10, 20))[0](update, context)    
+    except KeyError:
+        BOT_ENABLED[update.message.chat_id] = True
+        random.choices(handlers, (90, 20, 10, 20))[0](update, context)
 
+    
 # enable random messages in chat and groups
 # simply crate function to add chat id in DB table.
 @restricted

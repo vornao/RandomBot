@@ -92,8 +92,15 @@ def queue_handler():
             store_db_photo(DB_WRITER, elem["uid"], elem["tid"])
         elif elem["type"] == "music":
             store_db_music(DB_WRITER, elem["uid"], elem["tid"])
-        elif elem["type"] == "chat":
-            store_db_chat(DB_WRITER, elem["id"])
+        elif elem['type'] == 'enablerandomchat':
+            store_for_random_messages(DB_WRITER, elem['value'])
+        elif elem['type'] == 'disablerandomchat':
+            cancel_for_random_messages(DB_WRITER, elem['value'])
+        elif elem['type'] == 'gif':
+            store_db_gif(DB_WRITER, elem['uid'], elem['tid'])
+        elif elem['type'] == 'customreply':
+            store_custom_reply(DB_WRITER, elem['value'])
+
 
 
 def store_db_word(connection: db.Connection, word: str):
