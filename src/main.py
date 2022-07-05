@@ -245,13 +245,13 @@ def main():
     add_photo_handler = ConversationHandler(
         entry_points=[CommandHandler(COMMAND_ADD_PHOTO, commands.add_photo)],
         states={STATE_ADDPHOTO: [MessageHandler(Filters.photo, commands.store_photo)]},
-        fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)],
+        fallbacks=[CommandHandler(COMMAND_END, commands.stop_add_photo)],
     )
 
     add_gif_handler = ConversationHandler(
         entry_points=[CommandHandler(COMMAND_ADD_GIF, commands.add_gif)],
         states={STATE_ADDGIF: [MessageHandler(Filters.animation, commands.store_gif)]},
-        fallbacks=[CommandHandler(COMMAND_END, commands.stop_conversation)],
+        fallbacks=[CommandHandler(COMMAND_END, commands.stop_add_gif)],
     )
 
     add_music_handler = ConversationHandler(

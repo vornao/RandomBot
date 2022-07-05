@@ -14,7 +14,7 @@ from telegram import (
 )
 
 from const import *
-from config import ALLOWED, TOGGLE_BOT_ANSWERS, TOGGLE_BOT_KEYWORD
+from config import *
 from utils import *
 
 import config as botreplies
@@ -259,6 +259,7 @@ def store_gif(update: Update, context):
 
 @restricted
 def direct_store_photo(update: Update, context):
+    update.message.reply_text(random.choice(PHOTO_ADDED_REPLY))
     queue.put(
         {
             "type": "photo",
@@ -270,6 +271,16 @@ def direct_store_photo(update: Update, context):
 
 def stop_conversation(update: Update, context):
     update.message.reply_text(botreplies.CONTENT_ADDED_MSG)
+    return ConversationHandler.END
+
+
+def stop_add_photo(update: Update, context):
+    update.message.reply_text(random.choice(PHOTO_ADDED_REPLY))
+    return ConversationHandler.END
+
+
+def stop_add_gif(update: Update, context):
+    update.message.reply_text(random.choice(GIF_ADDED_REPLY))
     return ConversationHandler.END
 
 

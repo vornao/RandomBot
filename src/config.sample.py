@@ -20,6 +20,8 @@ DB_PATH = "../files/random-bot.sqlite"
 
 # message for /start command
 START_MSG = "Random Bot started!"
+START_CHAT_MSG = "Server restarted"
+
 
 TOGGLE_BOT_KEYWORD = ["ciao bot", "Ciao bot"]
 TOGGLE_BOT_ANSWERS = ["bot enabled!", "hello there!"]
@@ -27,13 +29,14 @@ TOGGLE_BOT_ANSWERS = ["bot enabled!", "hello there!"]
 # answer when conversation ends
 CONTENT_ADDED_MSG = "Done!"
 PHOTO_ADDED_REPLY = ["photo added!"]
+GIF_ADDED_REPLY = ["gif added!"]
 
 # replies for /add* commands
 ASK_WORD = "Send me a new quote!"
 ASK_STICKERS = "Send me stickers! type /stop when you're done"
 ASK_MUSIC = "Send me audio files! type /stop when you're done"
 ASK_PHOTOS = "Send me photos! type /stop when you're done"
-
+ASK_GIF = "Send me gifs! Type /stop when you're done"
 
 COMMAND_SEND_TEXT = "sendmessage"
 COMMAND_SEND_PHOTO = "sendphoto"
